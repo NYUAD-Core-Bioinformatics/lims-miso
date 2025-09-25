@@ -108,8 +108,10 @@ $$docker exec -i miso-installer-db-1 sh -c "exec mysql -u root -p<pass> lims" < 
 
 ```
 
+Samplesheet Generation script can be found in ```scripts``` folder.
 
 #### Other Useful Links
 
 - [MISO LIMS](https://github.com/miso-lims/miso-lims)
 - [Docker](https://www.docker.com/)
+- [Lims Introductory Video](https://youtu.be/vE5mFv-zMpk)
