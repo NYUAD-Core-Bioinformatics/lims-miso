@@ -1,0 +1,88 @@
+version: '3.7'
+
+secrets:
+  lims_password:
+    file: ${MISO_DB_PASSWORD_FILE}
+  root_password:
+    file: ${MISO_ROOT_PASSWORD_FILE}
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MISO_DB}
+      MYSQL_USER: ${MISO_DB_USER}
+      MYSQL_PASSWORD_FILE: /run/secrets/lims_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/root_password
+    secrets:
+      - lims_password
+      - root_password  
+    volumes:
+      - type: bind
+        source: "/data/miso/miso-data-directory/mysql"
+        target: "/var/lib/mysql"
+    ports:
+      - '13307:3306'    
+
+  flyway:
+    image: ghcr.io/miso-lims/miso-lims-migration:${MISO_TAG}
+    command: migrate
+    secrets:
+      - root_password
+    links:
+      - db
+    depends_on:
+      - db
+
+
+  webapp:
+    image: ghcr.io/miso-lims/miso-lims-webapp:${MISO_TAG}
+    restart: always
+    #    environment:
+    #      - TZ:Asia/Dubai
+    secrets:
+      - lims_password
+    links:
+      - db
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: "/data/miso/miso-data-directory/conf/miso.properties"
+        target: "/usr/local/tomcat/conf/Catalina/localhost/miso.properties"
+        volume:
+          nocopy: true
+      - type: bind
+        source: "/data/miso/miso-data-directory/files"
+        target: "/storage/miso/files"
+      - type: bind
+        source: "/data/miso/miso-data-directory/logs"
+        target: "/storage/miso/log"
+
+  nginx:
+    image: nginx:1.15.12-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: "/data/miso/miso-data-directory/nginx/ssl.conf"
+        target: "/etc/nginx/conf.d/default.conf"
+        volume:
+          nocopy: true
+      - type: bind
+        source: "/data/miso/miso-data-directory/nginx/miso.abudhabi.nyu.edu.key"
+        target: "/etc/nginx/ssl/miso.abudhabi.nyu.edu.key"
+        volume:
+          nocopy: true
+      - type: bind
+        source: "/data/miso/miso-data-directory/nginx/miso.abudhabi.nyu.edu_cert.cer"
+        target: "/etc/nginx/ssl/miso.abudhabi.nyu.edu_cert.cer"
+        volume:
+          nocopy: true
+    links:
+      - webapp
+    depends_on:
+      - webapp
