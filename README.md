@@ -1,5 +1,7 @@
 # lims-miso
 
+This document explains the installation and upgrade of Miso Lims application based on docker compose. 
+
 The best way to install miso lims is with the docker based. 
 
 ### Prerequisites
