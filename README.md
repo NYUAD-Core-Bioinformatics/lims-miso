@@ -100,13 +100,13 @@ docker exec -it miso-installer-db-1  /usr/bin/mysql -u root --password=<pass>
 ```
 
 Then on another terminal
+```
 $$docker exec -i miso-installer-db-1 sh -c "exec mysql -u root -p<pass> lims" < lims_25-09-24-05-00-01.sql
-
 >DROP DATABASE lims;
 >CREATE DATABASE lims;
 >GRANT ALL ON `lims`.* TO 'tgaclims'@'%';
-
 ```
+
 
 Samplesheet Generation script can be found in ```scripts``` folder.
 
