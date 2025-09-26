@@ -96,17 +96,17 @@ To  dump
 
 /usr/bin/docker exec miso-installer-db-1 /bin/bash -c "/usr/bin/mysql -u tgaclims -p<pass> --skip-column-names -b -e 'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \"lims\" AND TABLE_TYPE = \"BASE TABLE\";' 2> /dev/null | /usr/bin/xargs /usr/bin/mysqldump -u tgaclims -p<pass> --single-transaction --skip-triggers lims 2> /dev/null" > /data/miso_backup/db_back/db_cron_job_back/lims_$(date "+%y-%m-%d-%H-%M-%S").sql 2>&1
 
-
-To restore
-docker exec -it miso-installer-db-1  /usr/bin/mysql -u root --password=<pass>
 ```
 
 Then on another terminal
 ```
-$$docker exec -i miso-installer-db-1 sh -c "exec mysql -u root -p<pass> lims" < lims_25-09-24-05-00-01.sql
+$docker exec -it miso-installer-db-1  /usr/bin/mysql -u root --password=<pass>
 >DROP DATABASE lims;
 >CREATE DATABASE lims;
 >GRANT ALL ON `lims`.* TO 'tgaclims'@'%';
+
+Then restore the dump
+docker exec -i miso-installer-db-1 sh -c "exec mysql -u root -p<pass> lims" < lims_25-09-24-05-00-01.sql
 ```
 
 
